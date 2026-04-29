@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 连接测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 30px 20px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .field-group {
+            margin-bottom: 14px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .field-group input,
+        .field-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .field-group input:focus,
+        .field-group textarea:focus {
+            border-color: #333;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row .field-group {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-primary:active {
+            opacity: 0.8;
+        }
+
+        .btn-success {
+            background: #34c759;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .log-box {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            padding: 14px;
+            border-radius: 6px;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .log-box .success {
+            color: #34c759;
+        }
+
+        .log-box .error {
+            color: #ff3b30;
+        }
+
+        .log-box .info {
+            color: #5ac8fa;
+        }
+
+        .table-data {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .table-data th,
+        .table-data td {
+            border: 1px solid #eee;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .table-data th {
+            background: #f9f9f9;
+            font-weight: 600;
+        }
+
+        .empty-msg {
+            color: #999;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 13px;
+        }
+
+        .step-tip {
+            font-size: 13px;
+            color: #666;
+            padding: 10px 14px;
+            background: #fff8e1;
+            border-radius: 6px;
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .step-tip code {
+            background: #eee;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🔌 Supabase 连接测试</h1>
+
+    <!-- 配置 -->
+    <div class="card">
+        <div class="card-title">1. 配置连接</div>
+        <div class="step-tip">
+            在 Supabase 后台 → <strong>Settings → API</strong> 中获取以下信息：<br>
+            <strong>Project URL</strong>：例如 <code>https://xxx.supabase.co</code><br>
+            <strong>anon public key</strong>：例如 <code>eyJhbGciOiJIUzI1NiIs...</code>
+        </div>
+        <div class="field-group">
+            <label>Supabase URL</label>
+            <input type="text" id="supabaseUrl" value="https://bmtvbpnjhgzcnaztvllk.supabase.co">
+        </div>
+        <div class="field-group">
+            <label>anon public key</label>
+            <input type="text" id="supabaseKey" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtdHZicG5qaGd6Y25henR2bGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDgxMDEsImV4cCI6MjA5Mjk4NDEwMX0.lcdPdzXSAQv8PURAP5_AiniPZZN64R1teu317asY6JA">
+        </div>
+        <button class="btn btn-primary" id="connectBtn">连接 Supabase</button>
+        <span id="connStatus" style="margin-left: 12px; font-size: 13px; color: #999;"></span>
+    </div>
+
+    <!-- 操作 -->
+    <div class="card">
+        <div class="card-title">2. 数据操作测试</div>
+
+        <!-- 插入用户 -->
+        <div style="margin-bottom: 16px;">
+            <div style="font-weight: 500; font-size: 14px; margin-bottom: 8px;">📝 插入用户</div>
+            <div class="row">
+                <div class="field-group">
+                    <label>手机号（11位）</label>
+                    <input type="text" id="testPhone" inputmode="numeric" maxlength="11" placeholder="13800138000">
+                </div>
+                <div class="field-group" style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+                    <button class="btn btn-success" id="insertUserBtn">插入</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 插入计划 -->
+        <div style="margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #eee;">
+            <div style="font-weight: 500; font-size: 14px; margin-bottom: 8px;">📝 插入计划</div>
+            <div class="row">
+                <div class="field-group">
+                    <label>用户ID（从 users 表获取）</label>
+                    <input type="text" id="testUserId" placeholder="uuid">
+                </div>
+                <div class="field-group">
+                    <label>类型</label>
+                    <select id="testPlanType" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                        <option value="week">周计划</option>
+                        <option value="month">月计划</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+                <div class="field-group">
+                    <label>时间标识（如 2026年4月-5周 或 2026年4月）</label>
+                    <input type="text" id="testPlanTime" placeholder="2026年4月-5周">
+                </div>
+                <div class="field-group">
+                    <label>内容（20字以内）</label>
+                    <input type="text" id="testPlanContent" placeholder="测试计划内容" maxlength="20">
+                </div>
+            </div>
+            <button class="btn btn-success" id="insertPlanBtn" style="margin-top: 10px;">插入计划</button>
+        </div>
+
+        <!-- 查询 -->
+        <div style="margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #eee;">
+            <div style="font-weight: 500; font-size: 14px; margin-bottom: 8px;">🔍 查询数据</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="queryUsersBtn">查询 users 表</button>
+                <button class="btn btn-primary" id="queryPlansBtn">查询 plans 表</button>
+            </div>
+        </div>
+
+        <!-- 数据展示 -->
+        <div id="dataDisplay">
+            <div class="empty-msg">点击查询按钮查看数据</div>
+        </div>
+    </div>
+
+    <!-- 日志 -->
+    <div class="card">
+        <div class="card-title">3. 操作日志</div>
+        <div class="log-box" id="logBox">等待操作...</div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        var supabase = null;
+        var logBox = document.getElementById('logBox');
+
+        function log(msg, type) {
+            var line = '> [' + new Date().toLocaleTimeString() + '] ';
+            if (type === 'success') line += '✅ ';
+            else if (type === 'error') line += '❌ ';
+            else if (type === 'info') line += 'ℹ️ ';
+            else line += '   ';
+            line += msg;
+            logBox.innerHTML = '<span class="' + (type || '') + '">' + line + '</span>\n' + logBox.innerHTML;
+            // 限制日志行数
+            var lines = logBox.innerHTML.split('\n');
+            if (lines.length > 50) {
+                logBox.innerHTML = lines.slice(0, 50).join('\n');
+            }
+        }
+
+        // ====== 1. 连接 Supabase ======
+
+        document.getElementById('connectBtn').addEventListener('click', function () {
+            var url = document.getElementById('supabaseUrl').value.trim();
+            var key = document.getElementById('supabaseKey').value.trim();
+
+            if (!url || !key) {
+                log('请填写 Supabase URL 和 anon key', 'error');
+                return;
+            }
+
+            try {
+                supabase = createClient(url, key);
+                document.getElementById('connStatus').innerText = '✅ 客户端创建成功';
+                log('Supabase 客户端创建成功', 'success');
+                log('URL: ' + url, 'info');
+            } catch (e) {
+                document.getElementById('connStatus').innerText = '❌ 创建失败';
+                log('创建失败: ' + e.message, 'error');
+            }
+        });
+
+        // ====== 通用提示 ======
+
+        function checkConn() {
+            if (!supabase) {
+                log('请先点击「连接 Supabase」', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // ====== 2. 插入用户 ======
+
+        document.getElementById('insertUserBtn').addEventListener('click', function () {
+            if (!checkConn()) return;
+
+            var phone = document.getElementById('testPhone').value.trim();
+            if (phone.length !== 11 || !/^\d{11}$/.test(phone)) {
+                log('请输入正确的11位手机号码', 'error');
+                return;
+            }
+
+            supabase
+                .from('users')
+                .insert({ phone: phone })
+                .select()
+                .then(function (res) {
+                    if (res.error) {
+                        log('插入用户失败: ' + res.error.message, 'error');
+                        console.error(res.error);
+                    } else {
+                        log('插入用户成功: ' + JSON.stringify(res.data[0]), 'success');
+                        document.getElementById('testUserId').value = res.data[0].id;
+                    }
+                });
+        });
+
+        // ====== 3. 插入计划 ======
+
+        document.getElementById('insertPlanBtn').addEventListener('click', function () {
+            if (!checkConn()) return;
+
+            var userId = document.getElementById('testUserId').value.trim();
+            var type = document.getElementById('testPlanType').value;
+            var time = document.getElementById('testPlanTime').value.trim();
+            var content = document.getElementById('testPlanContent').value.trim();
+
+            if (!userId) {
+                log('请先插入用户，获取用户ID', 'error');
+                return;
+            }
+            if (!time) {
+                log('请填写时间标识', 'error');
+                return;
+            }
+            if (!content) {
+                log('请填写计划内容', 'error');
+                return;
+            }
+            if (content.length > 20) {
+                log('计划内容不能超过20字', 'error');
+                return;
+            }
+
+            supabase
+                .from('plans')
+                .insert({
+                    user_id: userId,
+                    type: type,
+                    time: time,
+                    content: content,
+                    auto_generate: false,
+                    is_auto_generated: false
+                })
+                .select()
+                .then(function (res) {
+                    if (res.error) {
+                        log('插入计划失败: ' + res.error.message, 'error');
+                        console.error(res.error);
+                    } else {
+                        log('插入计划成功: ' + JSON.stringify(res.data[0]), 'success');
+                    }
+                });
+        });
+
+        // ====== 4. 查询数据 ======
+
+        function renderTable(data, columns) {
+            if (!data || data.length === 0) {
+                return '<div class="empty-msg">暂无数据</div>';
+            }
+
+            var html = '<table class="table-data"><thead><tr>';
+            columns.forEach(function (col) {
+                html += '<th>' + col.label + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+
+            data.forEach(function (row) {
+                html += '<tr>';
+                columns.forEach(function (col) {
+                    var val = row[col.key];
+                    if (val === null || val === undefined) val = '-';
+                    else if (typeof val === 'string' && val.length > 40) val = val.substring(0, 40) + '...';
+                    html += '<td>' + val + '</td>';
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        document.getElementById('queryUsersBtn').addEventListener('click', function () {
+            if (!checkConn()) return;
+
+            supabase
+                .from('users')
+                .select('*')
+                .limit(20)
+                .then(function (res) {
+                    if (res.error) {
+                        log('查询 users 失败: ' + res.error.message, 'error');
+                    } else {
+                        log('查询 users 成功，共 ' + res.data.length + ' 条', 'success');
+                        document.getElementById('dataDisplay').innerHTML = renderTable(res.data, [
+                            { key: 'id', label: 'ID' },
+                            { key: 'phone', label: '手机号' },
+                            { key: 'created_at', label: '创建时间' }
+                        ]);
+                    }
+                });
+        });
+
+        document.getElementById('queryPlansBtn').addEventListener('click', function () {
+            if (!checkConn()) return;
+
+            supabase
+                .from('plans')
+                .select('*')
+                .limit(20)
+                .then(function (res) {
+                    if (res.error) {
+                        log('查询 plans 失败: ' + res.error.message, 'error');
+                    } else {
+                        log('查询 plans 成功，共 ' + res.data.length + ' 条', 'success');
+                        document.getElementById('dataDisplay').innerHTML = renderTable(res.data, [
+                            { key: 'id', label: 'ID' },
+                            { key: 'user_id', label: '用户ID' },
+                            { key: 'type', label: '类型' },
+                            { key: 'time', label: '时间' },
+                            { key: 'content', label: '内容' },
+                            { key: 'auto_generate', label: '自动生成' },
+                            { key: 'created_at', label: '创建时间' }
+                        ]);
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
