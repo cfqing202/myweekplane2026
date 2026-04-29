@@ -182,6 +182,32 @@
 }
 ```
 
+### 4.4 安全机制
+
+#### RLS 行级安全策略
+
+所有数据通过 Supabase Row Level Security 保护，即使用户自行提取到 anon key 也无法越权访问：
+
+- **users 表**：任何人都可以注册和查询（登录需要）
+- **plans 表**：用户只能 SELECT / INSERT / DELETE 自己的计划
+- 通过 `current_setting('app.user_phone')` 会话变量在服务端验证当前用户身份
+
+#### 认证流程
+
+```sql
+-- 前端调用此函数，告知数据库当前用户身份
+SELECT set_user_phone('13800138000');
+
+-- RLS 策略自动验证
+-- 等效于：WHERE user_id IN (SELECT id FROM users WHERE phone = '13800138000')
+```
+
+#### 安全注意事项
+
+- Supabase anon key 公开是正常设计，安全依赖于 RLS 而非隐藏 key
+- 即使有人从源码提取到 anon key + URL，也无法查看或篡改你的计划数据
+- 对方需要同时知道你的手机号才能通过 RLS 验证，而手机号不存前端变量中（仅在内存中运行时持有）
+
 ---
 
 ## 五、技术方案

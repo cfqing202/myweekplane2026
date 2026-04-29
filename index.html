@@ -544,7 +544,12 @@
             };
         }
 
+        async function setUserContext() {
+            await supabase.rpc('set_user_phone', { phone: currentPhone });
+        }
+
         async function fetchPlansFromDb() {
+            await setUserContext();
             var res = await supabase
                 .from('plans')
                 .select('*')
@@ -559,6 +564,7 @@
         }
 
         async function insertPlanToDb(plan) {
+            await setUserContext();
             var res = await supabase
                 .from('plans')
                 .insert(mapLocalToDb(plan))
@@ -575,6 +581,7 @@
         }
 
         async function deletePlanFromDb(planId) {
+            await setUserContext();
             var res = await supabase
                 .from('plans')
                 .delete()
